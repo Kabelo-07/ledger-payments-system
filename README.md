@@ -23,14 +23,22 @@ For building and running the application, please ensure the above tools/librarie
 
 
 ## Ledger Service
-To build the application, navigate to the payments-system root folder and navigate to the ledger-service directory (`cd ledger-service`) and run the below
+To build the application, ensure you're inside the payments-system root folder and navigate to the ledger-service directory (`cd ledger-service`) and run the below
 
 `./mvnw clean install`
+
+### Other commands
+* `mvn test` - executes unit tests within the project
+* `mvn verify` - executes Integration Tests within the project
 
 ## Transfer Service
-To build the application, navigate to the payments-system root folder and navigate to the transfer-service directory (`cd transfer-service`) and run the below
+To build the application, ensure you're inside the payments-system root folder and navigate to the transfer-service directory (`cd transfer-service`) and run the below
 
 `./mvnw clean install`
+
+### Other commands
+* `mvn test` - executes unit tests within the project
+* `mvn verify` - executes Integration Tests within the project
 
 ## How to run the application
 To run the application, the payments-system root folder contains a `docker-compose.yaml` where the `ledger-service`, `transfer-db` and `redis` services have been defined.
