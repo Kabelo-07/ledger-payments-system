@@ -231,6 +231,7 @@
 				<configuration>
 					<failOnError>false</failOnError>
 					<xmlOutput>true</xmlOutput>
+					<htmlOutput>true</htmlOutput>
 					<xmlOutputDirectory>${project.build.directory}</xmlOutputDirectory>
 					<htmlOutputDirectory>${project.build.directory}</htmlOutputDirectory>
 					<effort>Max</effort>
