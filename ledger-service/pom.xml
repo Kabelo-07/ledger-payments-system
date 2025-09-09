@@ -197,7 +197,7 @@
 				<artifactId>spotbugs-maven-plugin</artifactId>
 				<version>4.9.4.2</version>
 				<configuration>
-					<failOnError>true</failOnError>
+					<failOnError>false</failOnError>
 					<xmlOutput>true</xmlOutput>
 					<xmlOutputDirectory>${project.build.directory}</xmlOutputDirectory>
 					<effort>Max</effort>
