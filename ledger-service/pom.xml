@@ -205,7 +205,7 @@
 				</configuration>
 				<executions>
 					<execution>
-						<phase>package</phase>
+						<phase>clean</phase>
 						<goals>
 							<goal>check</goal>
 						</goals>
