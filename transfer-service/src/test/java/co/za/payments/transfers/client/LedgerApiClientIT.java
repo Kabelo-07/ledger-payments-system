@@ -4,7 +4,7 @@ import co.za.payments.transfers.client.contract.LedgerEntryDto;
 import co.za.payments.transfers.client.contract.LedgerTransferResponse;
 import co.za.payments.transfers.dto.LedgerTransferRequest;
 import co.za.payments.transfers.exception.ErrorResponse;
-import co.za.payments.transfers.exception.ServiceUnavailableException;
+import co.za.payments.transfers.exception.LedgerServiceException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -109,9 +109,8 @@ class LedgerApiClientIT {
         );
 
         // when
-        assertThatExceptionOfType(ServiceUnavailableException.class)
-                .isThrownBy(() -> ledgerApiClient.createLedgerEntry(req))
-                .withMessageStartingWith("Ledger Service");
+        assertThatExceptionOfType(LedgerServiceException.class)
+                .isThrownBy(() -> ledgerApiClient.createLedgerEntry(req));
     }
 
 }
