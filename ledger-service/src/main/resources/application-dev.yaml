@@ -2,18 +2,16 @@ spring:
   application:
     name: ledger-service
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:ledger_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: user
-    password: pwd123
-  h2:
-    console:
-      enabled: true
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/ledger_db
+    username: ledger_user
+    password: password456
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     hibernate:
       ddl-auto: create-drop
+      format_sql: true
   jackson:
     default-property-inclusion: NON_EMPTY
 
@@ -26,9 +24,9 @@ management:
 
 springdoc:
   swagger-ui:
-    enabled: true
+    enabled: ${SWAGGER_ENABLED:false}
   api-docs:
-    enabled: true
+    enabled: ${SWAGGER_ENABLED:false}
 
 server:
   port: 8081

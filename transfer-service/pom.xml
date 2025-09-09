@@ -49,11 +49,6 @@
 			<artifactId>micrometer-tracing-bridge-brave</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.zipkin.reporter2</groupId>
-			<artifactId>zipkin-reporter-brave</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
@@ -135,6 +130,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.11.0</version>
 				<configuration>
+					<release>${java.version}</release>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
@@ -223,28 +219,6 @@
 						<include>**/*IT.java</include>
 					</includes>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
-				<version>4.9.4.2</version>
-				<configuration>
-					<failOnError>false</failOnError>
-					<xmlOutput>true</xmlOutput>
-					<htmlOutput>true</htmlOutput>
-					<xmlOutputDirectory>${project.build.directory}</xmlOutputDirectory>
-					<htmlOutputDirectory>${project.build.directory}</htmlOutputDirectory>
-					<effort>Max</effort>
-					<threshold>Low</threshold>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

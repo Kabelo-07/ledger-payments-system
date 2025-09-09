@@ -9,6 +9,28 @@ services:
       - "6379:6379"
     command: ["redis-server", "--appendonly", "yes"]
 
+  transfer-pg-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: transfer_db
+      POSTGRES_USER: transfer_user
+      POSTGRES_PASSWORD: password321
+    ports:
+      - "5432:5432"
+    volumes:
+      - transfer-pgdata:/var/lib/postgresql/data
+
+  ledger-pg-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ledger_db
+      POSTGRES_USER: ledger_user
+      POSTGRES_PASSWORD: password456
+    ports:
+      - "5433:5432"
+    volumes:
+      - ledger-pgdata:/var/lib/postgresql/data
+
   ledger-service:
     build:
       context: ./ledger-service
@@ -16,13 +38,17 @@ services:
     container_name: ledger-service
     restart: always
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/ledger_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-pg-db:5432/ledger_db
       SPRING_DATASOURCE_USERNAME: ledger_user
-      SPRING_DATASOURCE_PASSWORD: password321
+      SPRING_DATASOURCE_PASSWORD: password456
       SPRING_REDIS_HOST: redis
       SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8081
+      SWAGGER_ENABLED: true
+    depends_on:
+      - ledger-pg-db
     ports:
-      - "8081:8080"
+      - "8081:8081"
 
   transfer-service:
     build:
@@ -31,13 +57,20 @@ services:
     container_name: transfer-service
     restart: always
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://transfer-db:5432/transfer_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://transfer-pg-db:5432/transfer_db
       SPRING_DATASOURCE_USERNAME: transfer_user
       SPRING_DATASOURCE_PASSWORD: password321
       SPRING_REDIS_HOST: redis
       SPRING_PROFILES_ACTIVE: dev
+      SWAGGER_ENABLED: true
     depends_on:
       redis:
         condition: service_started
+      transfer-pg-db:
+        condition: service_started
     ports:
       - "8080:8080"
+
+volumes:
+  ledger-pgdata:
+  transfer-pgdata:

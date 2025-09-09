@@ -18,10 +18,10 @@ public class TransferOutboxEvent extends AbstractEntity {
     private UUID transferId;
 
     @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String payload;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private OutboxStatus status;
 

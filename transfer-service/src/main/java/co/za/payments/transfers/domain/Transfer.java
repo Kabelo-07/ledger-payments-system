@@ -22,7 +22,7 @@ public class Transfer extends AbstractEntity {
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal amount;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private TransferStatus status;
 
