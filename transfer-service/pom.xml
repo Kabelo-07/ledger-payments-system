@@ -232,6 +232,7 @@
 					<failOnError>false</failOnError>
 					<xmlOutput>true</xmlOutput>
 					<xmlOutputDirectory>${project.build.directory}</xmlOutputDirectory>
+					<htmlOutputDirectory>${project.build.directory}</htmlOutputDirectory>
 					<effort>Max</effort>
 					<threshold>Low</threshold>
 				</configuration>
