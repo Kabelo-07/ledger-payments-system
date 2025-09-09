@@ -48,7 +48,7 @@ Once the above has completed, execute the below
 
 Execute `docker ps` from the terminal to check if the containers are up and running, below is an example result of running docker ps:
 
-![img.png](img.png)
+![img_2.png](img_2.png)
 
 We can check a specific container's logs by running: `docker logs <CONTAINER_ID> -f`.
 
@@ -92,6 +92,20 @@ Once it is up and running, you should see something like this in the logs
 ```
 1:M 08 Sep 2025 17:12:41.284 * Creating AOF incr file appendonly.aof.1.incr.aof on server start
 1:M 08 Sep 2025 17:12:41.284 * Ready to accept connections tcp
+```
+
+
+## Verify ledger and transfer databases are up and running 
+
+Copy the CONTAINER_ID of the db service container service and run (based on above screenshot, the container Id is f2b718c9f14c. NOTE: It will be different for you):
+```
+docker logs f2b718c9f14c -f 
+```
+
+Below log message will be displayed in the docker logs, confirming DBs are up and running
+
+```
+2025-09-09 13:33:33.121 UTC [1] LOG:  database system is ready to accept connections
 ```
 
 ## Accessing API documentation

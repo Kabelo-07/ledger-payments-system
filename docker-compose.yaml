@@ -11,6 +11,7 @@ services:
 
   transfer-pg-db:
     image: postgres:15
+    container_name: transfer-db
     environment:
       POSTGRES_DB: transfer_db
       POSTGRES_USER: transfer_user
@@ -22,6 +23,7 @@ services:
 
   ledger-pg-db:
     image: postgres:15
+    container_name: ledger-db
     environment:
       POSTGRES_DB: ledger_db
       POSTGRES_USER: ledger_user
