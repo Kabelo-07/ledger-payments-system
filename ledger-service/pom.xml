@@ -192,6 +192,28 @@
 					</includes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.9.4.2</version>
+				<configuration>
+					<!-- Fail the build if SpotBugs finds errors -->
+					<failOnError>true</failOnError>
+					<!-- Output format -->
+					<xmlOutput>true</xmlOutput>
+					<xmlOutputDirectory>${project.build.directory}</xmlOutputDirectory>
+					<effort>Max</effort>
+					<threshold>Low</threshold>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
