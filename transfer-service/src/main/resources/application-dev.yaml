@@ -3,9 +3,13 @@ spring:
     name: transfer-service
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/transfer_db
-    username: transfer_user
-    password: password321
+    url: ${TRANSFER_DB_URL:jdbc:postgresql://localhost:5433/transfer_db}
+    username: ${TRANSFER_DB_USER:transfer_user}
+    password: ${TRANSFER_DB_PWD}
+    hikari:
+      auto-commit: false
+      maximum-pool-size: 10
+      minimum-idle: 5
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
@@ -16,8 +20,8 @@ spring:
     default-property-inclusion: NON_EMPTY
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 management:
   endpoints:
@@ -40,7 +44,7 @@ springdoc:
 
 ledger:
   service:
-    base-url: http://localhost:8081
+    base-url: ${LEDGER_BASE_URL:http://localhost:8081}
 
 transfer:
   batch:
@@ -48,10 +52,10 @@ transfer:
     thread-pool-size: 10
     queue-capacity: 100
   idempotency:
-    ttl: 200s # ISO format
+    ttl: ${IDEMPOTENCY_TTL:2m} # ISO format
   outbox:
     max-retries: 5
-    base-backoff-seconds: 25
+    base-backoff-seconds: ${BASE_BACKOFF_SECONDS:30}
 
 resilience4j.circuitbreaker:
     instances:

@@ -3,9 +3,13 @@ spring:
     name: ledger-service
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/ledger_db
-    username: ledger_user
-    password: password456
+    url: ${LEDGER_DB_URL:jdbc:postgresql://localhost:5432/ledger_db}
+    username: ${LEDGER_DB_USER:ledger_user}
+    password: ${LEDGER_DB_PWD}
+    hikari:
+      auto-commit: false
+      maximum-pool-size: 10
+      minimum-idle: 5
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true

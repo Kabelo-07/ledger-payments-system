@@ -12,8 +12,12 @@ import co.za.payments.transfers.repository.TransferRepository;
 import co.za.payments.transfers.service.TransferService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,17 +51,21 @@ public class TransferServiceImpl implements TransferService {
         this.objectMapper = objectMapper;
     }
 
+    @Retryable(
+            retryFor = {OptimisticLockException.class, OptimisticLockingFailureException.class},
+            backoff = @Backoff(delay = 50, multiplier = 2, random = true),
+            maxAttempts = 4)
     @Override
     @Transactional
     public TransferResponse processTransfer(AccountTransferRequest request, String idempotencyKey) {
-        log.info("Processing Transfer, check idempotencyKey {} in cache", idempotencyKey);
+        log.info("Processing Transfer, check idempotencyKey: {} in cache", idempotencyKey);
 
         var cachedResponse = idempotencyRepository.get(idempotencyKey, TransferResponse.class);
 
         if (cachedResponse.isPresent()) {
             var response = cachedResponse.get();
 
-            log.info("IdempotencyKey {} found in cache, with transferId: {}, amount: {}, fromAccount: {}, toAccount: {}", idempotencyKey,
+            log.info("IdempotencyKey: {} found in cache, with transferId: {}, amount: {}, fromAccount: {}, toAccount: {}", idempotencyKey,
                     response.transferId(), response.amount(),
                     response.fromAccountId(), response.toAccountId());
 
@@ -98,11 +106,11 @@ public class TransferServiceImpl implements TransferService {
     @Override
     @Transactional
     public BatchTransferResponse processBatch(BatchTransferRequest batchRequest, String idempotencyKey) {
-        log.info("Processing Batch, check idempotencyKey {} in cache", idempotencyKey);
+        log.info("Processing Batch, check idempotencyKey: {} in cache", idempotencyKey);
         var cached = idempotencyRepository.get(idempotencyKey, BatchTransferResponse.class);
 
         if (cached.isPresent()) {
-            log.info("IdempotencyKey {} found in cache for batch transfer", idempotencyKey);
+            log.info("IdempotencyKey: {} found in cache for batch transfer", idempotencyKey);
 
             return cached.get();
         }

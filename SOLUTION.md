@@ -6,6 +6,11 @@
     * A dedicated `ThreadPoolTaskExecutor` is used for batch processing
     * The executor is a managed Spring `@Bean` with configurations (pool size, queue capacity etc..) configured in the application properties file 
 
+## Application Concurrency
+ * Adopted optimistic locking implementation, which uses versioning to handle race conditions when multiple transfers hit the same account.
+ * Optimistic locking scales well under normal load as it is non-blocking and is an ideal approach in instances where conflicts are rare i.e. for "normal" day to day account transfers. In instances where an account is updated by multiple system throughout the day, Pessimistic locking might be the better solution as it prevents race condition efficiently by locking rows for update.
+ * In this solution, when an optimistic lock exception case occurs, Spring `@Retryable` has been implemented to auto-retry the transfer.
+
 ## Idempotency
   * Idempotency is forced through the usage of a `Idempotency-Key` header -> this ensures that transfer requests with the same key return previously the processed response to avoid double charges
   * Idempotency is mandatory in the single transfer processing operation (POST /transfer), and is optional in the Batch transfer processing -> if not provided in batch, there is no check done for previous batch transfer

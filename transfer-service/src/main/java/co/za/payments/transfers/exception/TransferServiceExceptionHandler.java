@@ -1,7 +1,10 @@
 package co.za.payments.transfers.exception;
 
+import co.za.payments.transfers.config.AppConstants;
+import jakarta.persistence.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -57,10 +60,18 @@ public class TransferServiceExceptionHandler {
                 .body(new ErrorResponse(BAD_REQUEST.value(), MISSING_HEADER, ex.getMessage()));
     }
 
+    @ExceptionHandler({OptimisticLockException.class, OptimisticLockingFailureException.class})
+    public ResponseEntity<ErrorResponse> handleOptimisticException(Exception exception) {
+        log.error("Optimistic lock error occurred ", exception);
+        return ResponseEntity
+                .internalServerError()
+                .body(new ErrorResponse(HttpStatus.CONFLICT.value(), AppConstants.CONFLICT_CODE, "Conflict error processing transfer"));
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericError(Exception exception) {
         log.error("Error occurred ", exception);
+
         return ResponseEntity
                 .internalServerError()
                 .body(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.name(), exception.getMessage()));

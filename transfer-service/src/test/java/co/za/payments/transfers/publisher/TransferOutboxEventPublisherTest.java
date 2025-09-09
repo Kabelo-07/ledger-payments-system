@@ -46,8 +46,9 @@ class TransferOutboxEventPublisherTest {
 
     @BeforeEach
     void setUp() {
-        publisher = new TransferOutboxEventPublisher(outboxRepository, transferRepository,ledgerApiClient,
+        var processor = new TransferOutboxEventProcessor(outboxRepository, transferRepository, ledgerApiClient,
                 objectMapper, properties);
+        publisher = new TransferOutboxEventPublisher(outboxRepository, processor);
     }
 
     @Test

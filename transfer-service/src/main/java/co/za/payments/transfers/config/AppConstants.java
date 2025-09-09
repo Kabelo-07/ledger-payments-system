@@ -11,4 +11,5 @@ public final class AppConstants {
     public static final String INVALID_REQUEST = "INVALID_REQUEST";
 
     public static final String MISSING_HEADER = "MISSING_HEADER";
+    public static final String CONFLICT_CODE = "TRANSFER_CONFLICT";
 }

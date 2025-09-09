@@ -18,6 +18,7 @@ public class TransferOutboxEvent extends AbstractEntity {
     private UUID transferId;
 
     @Lob
+    @Basic(fetch = FetchType.EAGER)
     @Column(nullable = false, columnDefinition = "TEXT")
     private String payload;
 
