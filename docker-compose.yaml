@@ -46,7 +46,7 @@ services:
       SPRING_REDIS_HOST: redis
       SPRING_PROFILES_ACTIVE: dev
       SERVER_PORT: 8081
-      SWAGGER_ENABLED: true
+      SWAGGER_ENABLED: "true"
     depends_on:
       - ledger-pg-db
     ports:
@@ -64,7 +64,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: password321
       SPRING_REDIS_HOST: redis
       SPRING_PROFILES_ACTIVE: dev
-      SWAGGER_ENABLED: true
+      SWAGGER_ENABLED: "true"
     depends_on:
       redis:
         condition: service_started
