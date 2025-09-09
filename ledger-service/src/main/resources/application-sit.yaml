@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: ledger-service
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:ledger_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: user
+    password: pwd123
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+  jackson:
+    default-property-inclusion: NON_EMPTY
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+      base-path: /
+
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+
+server:
+  port: 8081
+  error:
+    whitelabel:
+      enabled: false
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%X{X-Request-ID}] %logger{36} - %msg%n"

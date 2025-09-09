@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  redis:
+    image: redis:7
+    container_name: payments_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+
+  ledger-service:
+    build:
+      context: ./ledger-service
+      dockerfile: Dockerfile
+    container_name: ledger-service
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/ledger_db
+      SPRING_DATASOURCE_USERNAME: ledger_user
+      SPRING_DATASOURCE_PASSWORD: password321
+      SPRING_REDIS_HOST: redis
+      SPRING_PROFILES_ACTIVE: sit
+    ports:
+      - "8081:8080"
+
+  transfer-service:
+    build:
+      context: ./transfer-service
+      dockerfile: Dockerfile
+    container_name: transfer-service
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://transfer-db:5432/transfer_db
+      SPRING_DATASOURCE_USERNAME: transfer_user
+      SPRING_DATASOURCE_PASSWORD: password321
+      SPRING_REDIS_HOST: redis
+      SPRING_PROFILES_ACTIVE: sit
+    depends_on:
+      redis:
+        condition: service_started
+    ports:
+      - "8080:8080"

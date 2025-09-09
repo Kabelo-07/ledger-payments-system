@@ -1,0 +1,9 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE account (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  balance NUMERIC(18,2) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP NOT NULL DEFAULT now(),
+  version INTEGER NOT NULL
+);
