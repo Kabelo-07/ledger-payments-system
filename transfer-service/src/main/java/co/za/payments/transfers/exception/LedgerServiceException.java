@@ -1,15 +1,15 @@
 package co.za.payments.transfers.exception;
 
-public class LedgerServiceException extends RuntimeException {
+public class LedgerServiceException extends TransferApplicationException {
 
-    private final ErrorResponse response;
+    private final int status;
 
-    public LedgerServiceException(ErrorResponse response) {
-        super(response.message());
-        this.response = response;
+    public LedgerServiceException(int status, String code, String message) {
+        super(code, message);
+        this.status = status;
     }
 
-    public ErrorResponse getResponse() {
-        return response;
+    public int getStatus() {
+        return status;
     }
 }

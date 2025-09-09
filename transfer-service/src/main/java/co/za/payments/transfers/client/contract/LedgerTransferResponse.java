@@ -12,4 +12,8 @@ public record LedgerTransferResponse(
         @JsonProperty("debit_entry") LedgerEntryDto debitEntry,
         @JsonProperty("credit_entry") LedgerEntryDto creditEntry,
         @JsonProperty("created_at") Instant createdAt
-) { }
+) {
+    public boolean isEmpty() {
+        return LedgerTransferResponse.builder().build().equals(this);
+    }
+}

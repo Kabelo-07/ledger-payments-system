@@ -43,7 +43,7 @@ public class LedgerFeignErrorDecoder implements ErrorDecoder {
     private LedgerServiceException mapToLedgerException(String body) {
         try {
             var resp = new ObjectMapper().readValue(body, ErrorResponse.class);
-            return new LedgerServiceException(resp);
+            return new LedgerServiceException(resp.status(), resp.code(), resp.message());
         } catch (JsonProcessingException e) {
             throw new TransferApplicationException("SERVICE_ERROR", "Unable to process service response");
         }

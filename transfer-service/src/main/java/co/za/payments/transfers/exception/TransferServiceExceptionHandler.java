@@ -32,11 +32,14 @@ public class TransferServiceExceptionHandler {
     }
 
     @ExceptionHandler(LedgerServiceException.class)
-    public ResponseEntity<ErrorResponse> handleLedgerServiceException(LedgerServiceException exception) {
-        log.error("Error invoking ledger API", exception);
+    public ResponseEntity<ErrorResponse> handleLedgerServiceException(LedgerServiceException ex) {
+        log.error("Error invoking ledger API", ex);
 
-        var response = exception.getResponse();
-        return ResponseEntity.status(response.status()).body(response);
+        return ResponseEntity.status(ex.getStatus()).body(new ErrorResponse(
+                ex.getStatus(),
+                ex.getCode(),
+                ex.getMessage())
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
