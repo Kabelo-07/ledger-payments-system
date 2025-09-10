@@ -32,16 +32,20 @@ public class TransferOutboxEvent extends AbstractEntity {
     @Column(name = "next_attempt_at")
     private Instant nextAttemptAt;
 
+    @Column(length = 400)
+    private String message;
+
     public static TransferOutboxEvent instanceOf(UUID transferId, String payload) {
-        return new TransferOutboxEvent(transferId, payload, OutboxStatus.PENDING, 0, Instant.now());
+        return new TransferOutboxEvent(transferId, payload, OutboxStatus.PENDING, 0, Instant.now(), null);
     }
 
     public void markAsProcessed() {
         this.status = OutboxStatus.PROCESSED;
     }
 
-    public void markAsFailed() {
+    public void markAsFailed(String message) {
         this.status = OutboxStatus.FAILED;
+        this.message = message;
     }
 
     public void incrementRetryCount() {

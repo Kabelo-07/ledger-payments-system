@@ -24,7 +24,7 @@ public interface LedgerApiClient {
 
     default LedgerTransferResponse createLedgerEntryFallback(LedgerTransferRequest request,
                                                              Throwable throwable) {
-        log.error("ledgerApi Call Failed: {{ transferId: {}, error: {} }}",
+        log.error("ledgerApi Call Failed: {{ transferId: [{}], error: [{}] }}",
                 request.transferId(),
                 throwable.getMessage());
 

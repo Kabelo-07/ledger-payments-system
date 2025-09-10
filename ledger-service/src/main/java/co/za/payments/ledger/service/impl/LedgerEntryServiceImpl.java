@@ -32,7 +32,7 @@ public class LedgerEntryServiceImpl implements LedgerService {
         var existingTransfers = ledgerRepository.findByTransferId(request.transferId());
 
         if (!existingTransfers.isEmpty()) {
-            log.info("Ledger entry exists for transferId: {}. Returning existing transfer", request.transferId());
+            log.info("Ledger entry exists for transferId: [{}]. Returning existing transfer", request.transferId());
 
             return mapResponse(existingTransfers);
         }
@@ -48,12 +48,12 @@ public class LedgerEntryServiceImpl implements LedgerService {
 
         var response = mapResponse(ledgerEntries);
 
-        log.info("Ledger entry created for transferId: {}, amount: {}", response.transferId(), response.debitEntry().amount());
+        log.info("Ledger entry created for transferId: [{}], amount: [{}]", response.transferId(), response.debitEntry().amount());
         return response;
     }
 
     private Account retrieveAccount(UUID accountId) {
-        log.info("Retrieving account with accountId: {}", accountId);
+        log.info("Retrieving account with accountId: [{}]", accountId);
 
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));

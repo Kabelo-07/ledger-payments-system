@@ -10,6 +10,7 @@ public record TransferResponse(
         @JsonProperty("transfer_id") UUID transferId,
         String status,
         @JsonProperty("created_at") Instant createdAt,
+        @JsonProperty("updated_at") Instant updatedAt,
         @JsonProperty("from_account_id") UUID fromAccountId,
         @JsonProperty("to_account_id") UUID toAccountId,
         BigDecimal amount) {

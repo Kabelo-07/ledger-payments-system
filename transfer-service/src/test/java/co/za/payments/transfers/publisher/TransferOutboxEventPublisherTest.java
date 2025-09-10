@@ -122,7 +122,7 @@ class TransferOutboxEventPublisherTest {
 
         // and
         when(outboxRepository.findTop50ByStatusAndNextAttemptAtBeforeOrderByCreatedAtAsc(any(), any())).thenReturn(List.of(event));
-        when(ledgerApiClient.createLedgerEntry(any())).thenThrow(new RuntimeException());
+        when(ledgerApiClient.createLedgerEntry(any())).thenThrow(new RuntimeException("Failure occurred"));
 
         // when
         var transfer  =Transfer.instanceOf(UUID.randomUUID(), BigDecimal.valueOf(100), UUID.randomUUID());
@@ -136,6 +136,7 @@ class TransferOutboxEventPublisherTest {
         // then
         assertThat(event.getNumberOfAttempts()).isEqualTo(1);
         assertThat(event.getStatus()).isEqualTo(OutboxStatus.FAILED);
+        assertThat(event.getMessage()).isEqualTo("Failure occurred");
         assertThat(transfer.getStatus()).isEqualTo(TransferStatus.FAILED);
 
         // and

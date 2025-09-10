@@ -35,7 +35,9 @@ public class TransferOutboxEventProcessor {
 
         try {
             var request = objectMapper.readValue(event.getPayload(), LedgerTransferRequest.class);
-            ledgerApiClient.createLedgerEntry(request);
+            var response = ledgerApiClient.createLedgerEntry(request);
+
+            log.info("Transfer processed successfully in ledger with response: [{}] ", response);
 
             this.markAsCompleted(event, transfer);
         } catch (Exception exception) {
@@ -45,14 +47,19 @@ public class TransferOutboxEventProcessor {
 
     private void handleRetry(TransferOutboxEvent event, Transfer transfer, Throwable throwable) {
         if (!event.canRetry(properties.getMaxRetries())) {
-            this.markAsFailed(event, transfer);
+            markAsFailed(event, transfer, throwable.getMessage());
             return;
         }
 
+        markForRetry(event, transfer, throwable);
+    }
+
+    private void markForRetry(TransferOutboxEvent event, Transfer transfer, Throwable throwable) {
         event.setNextAttemptAt(backOffPolicyAttempt(event.getNumberOfAttempts()));
+        event.setMessage(throwable.getMessage());
         outboxRepository.save(event);
 
-        log.warn("Transfer {} retry scheduled to be processed at: {}, due to error: {}",
+        log.warn("Transfer {} retry scheduled to be processed at: [{}], due to error: [{}]",
                 transfer.getId(),
                 event.getNextAttemptAt(),
                 throwable.getMessage()
@@ -64,14 +71,13 @@ public class TransferOutboxEventProcessor {
         return Instant.now().plusSeconds(backoffSeconds);
     }
 
-
-    private void markAsFailed(TransferOutboxEvent event, Transfer transfer) {
+    private void markAsFailed(TransferOutboxEvent event, Transfer transfer, String message) {
         //mark transaction as failed
         transfer.markAsFailed();
         transferRepository.save(transfer);
 
         //mark event as failed
-        event.markAsFailed();
+        event.markAsFailed(message);
         outboxRepository.save(event);
     }
 

@@ -67,13 +67,13 @@ public class TransferServiceAppConfig {
                 log.info("CircuitBreaker '{}' created", cb.getName());
 
                 cb.getEventPublisher()
-                        .onStateTransition(e -> log.info("CircuitBreaker: {}, transition {} -> {}",
+                        .onStateTransition(e -> log.info("CircuitBreaker: [{}], transition {} -> {}",
                                 cb.getName(),
                                 e.getStateTransition().getFromState(),
                                 e.getStateTransition().getToState()))
-                        .onCallNotPermitted(e -> log.warn("CircuitBreaker: {}, call blocked", cb.getName()))
-                        .onError(e -> log.error("CircuitBreaker: {}, error {}", cb.getName(), e.getThrowable().toString()))
-                        .onSuccess(e -> log.info("CircuitBreaker: {} success", cb.getName()));
+                        .onCallNotPermitted(e -> log.warn("CircuitBreaker: [{}], call blocked", cb.getName()))
+                        .onError(e -> log.error("CircuitBreaker: [{}], error {}", cb.getName(), e.getThrowable().toString()))
+                        .onSuccess(e -> log.info("CircuitBreaker: [{}] success", cb.getName()));
             }
 
             @Override

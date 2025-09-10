@@ -23,18 +23,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountResponse create(CreateAccountRequest request) {
-        log.info("Creating account, request: {}", request);
+        log.info("Creating account, request: [{}]", request);
 
         var account = Account.instanceOf(request.balance());
         account = repository.save(account);
 
-        log.info("Account, created, accountId: {}, initialBalance: {}", account.getId(), account.getBalance());
+        log.info("Account, created, accountId: [{}], initialBalance: [{}]", account.getId(), account.getBalance());
         return mapResponse(account);
     }
 
     @Override
     public AccountResponse getAccount(UUID id) {
-        log.info("Retrieving account with accountId: {}", id);
+        log.info("Retrieving account with accountId: [{}]", id);
 
         return repository.findById(id)
                 .map(this::mapResponse)

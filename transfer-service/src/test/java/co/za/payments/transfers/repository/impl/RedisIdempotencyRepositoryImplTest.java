@@ -94,6 +94,7 @@ class RedisIdempotencyRepositoryImplTest {
         var response = new TransferResponse(UUID.randomUUID(),
                 TransferStatus.COMPLETED.name(),
                 Instant.now(),
+                Instant.now(),
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 BigDecimal.TEN);
@@ -131,6 +132,7 @@ class RedisIdempotencyRepositoryImplTest {
         var key = UUID.randomUUID().toString();
         var response = new TransferResponse(UUID.randomUUID(),
                 TransferStatus.COMPLETED.name(),
+                Instant.now(),
                 Instant.now(),
                 UUID.randomUUID(),
                 UUID.randomUUID(),

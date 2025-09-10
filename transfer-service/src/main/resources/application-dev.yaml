@@ -41,6 +41,11 @@ springdoc:
     enabled: ${SWAGGER_ENABLED:false}
   api-docs:
     enabled: ${SWAGGER_ENABLED:false}
+  open-api:
+    info:
+      title: Transfers API
+      description: Transfers API documentation
+      version: 1.0.0
 
 ledger:
   service:

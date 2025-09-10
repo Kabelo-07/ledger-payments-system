@@ -276,6 +276,7 @@ class TransferServiceImplTest {
         return new TransferResponse(transferId,
                 TransferStatus.COMPLETED.name(),
                 Instant.now(),
+                Instant.now(),
                 fromAccountId,
                 toAccountId,
                 amount);

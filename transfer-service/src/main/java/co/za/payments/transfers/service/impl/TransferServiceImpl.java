@@ -58,30 +58,29 @@ public class TransferServiceImpl implements TransferService {
     @Override
     @Transactional
     public TransferResponse processTransfer(AccountTransferRequest request, String idempotencyKey) {
-        log.info("Processing Transfer, check idempotencyKey: {} in cache", idempotencyKey);
-
         var cachedResponse = idempotencyRepository.get(idempotencyKey, TransferResponse.class);
 
         if (cachedResponse.isPresent()) {
             var response = cachedResponse.get();
 
-            log.info("IdempotencyKey: {} found in cache, with transferId: {}, amount: {}, fromAccount: {}, toAccount: {}", idempotencyKey,
+            log.info("IdempotencyKey: [{}], found in cache, with transferId: [{}], amount: [{}], fromAccount: [{}], toAccount: [{}]", idempotencyKey,
                     response.transferId(), response.amount(),
                     response.fromAccountId(), response.toAccountId());
 
             return response;
         }
+        log.info("IdempotencyKey: [{}], not found in cache, processing transfer", idempotencyKey);
 
         var transferResponse = processSingleTransfer(request.fromAccountId(), request.amount(), request.toAccountId());
 
         idempotencyRepository.put(idempotencyKey, transferResponse, properties.getTtl());
 
-        log.info("Processed transfer request: {}", request);
+        log.info("Processed transfer request: [{}]", request);
         return transferResponse;
     }
 
     private TransferResponse processSingleTransfer(UUID fromAccountId, BigDecimal amount, UUID toAccountId) {
-        log.info("Processing transfer request fromAccountId: {}, toAccountId: {}, amount: {}", fromAccountId, toAccountId, amount);
+        log.info("Processing transfer request fromAccountId: [{}], toAccountId: [{}], amount: [{}]", fromAccountId, toAccountId, amount);
 
         //create and save transfer
         var transfer =  repository.save(Transfer.instanceOf(fromAccountId, amount, toAccountId));
@@ -95,7 +94,7 @@ public class TransferServiceImpl implements TransferService {
 
         var response = mapToResponse(transfer);
 
-        log.info("Processed transfer request fromAccountId: {}, toAccountId: {}, amount: {}, generated transferId: {}, status: {}",
+        log.info("Processed transfer request fromAccountId: [{}], toAccountId: [{}], amount: [{}], generated transferId: [{}], status: [{}]",
                 fromAccountId, toAccountId, amount,
                 response.transferId(),
                 response.status());
@@ -106,14 +105,15 @@ public class TransferServiceImpl implements TransferService {
     @Override
     @Transactional
     public BatchTransferResponse processBatch(BatchTransferRequest batchRequest, String idempotencyKey) {
-        log.info("Processing Batch, check idempotencyKey: {} in cache", idempotencyKey);
         var cached = idempotencyRepository.get(idempotencyKey, BatchTransferResponse.class);
 
         if (cached.isPresent()) {
-            log.info("IdempotencyKey: {} found in cache for batch transfer", idempotencyKey);
+            log.info("IdempotencyKey: [{}], found in cache, returning existing batch transfer", idempotencyKey);
 
             return cached.get();
         }
+
+        log.info("Processing batch transfer, idempotencyKey: [{}], not found in cache", idempotencyKey);
 
         batchRequest.validate(properties.maxTransferSize());
 
@@ -136,7 +136,7 @@ public class TransferServiceImpl implements TransferService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public TransferResponse retrieveById(UUID id) {
-        log.info("Retrieving transfer with id: {}", id);
+        log.info("Retrieving transfer with id: [{}]", id);
 
         return repository.findById(id)
                 .map(this::mapToResponse)
@@ -147,6 +147,7 @@ public class TransferServiceImpl implements TransferService {
         return new TransferResponse(transfer.getId(),
                 transfer.getStatus().name(),
                 transfer.getCreatedAt(),
+                transfer.getUpdatedAt(),
                 transfer.getFromAccountId(),
                 transfer.getToAccountId(),
                 transfer.getAmount()

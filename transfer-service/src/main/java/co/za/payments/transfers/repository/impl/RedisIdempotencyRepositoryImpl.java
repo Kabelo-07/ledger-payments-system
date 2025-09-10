@@ -35,7 +35,7 @@ public class RedisIdempotencyRepositoryImpl implements IdempotencyRepository {
         try {
             return Optional.of(objectMapper.readValue(jsonStr, type));
         } catch (Exception e) {
-            log.warn("Unable to map json response, error: {}", e.getMessage());
+            log.warn("Unable to map json response, error: [{}]", e.getMessage());
 
             return Optional.empty();
         }
@@ -51,7 +51,7 @@ public class RedisIdempotencyRepositoryImpl implements IdempotencyRepository {
             var jsonStr = objectMapper.writeValueAsString(object);
             redisTemplate.opsForValue().set(key, jsonStr, ttl);
         } catch (Exception e) {
-            log.error("Unable to cache json object, error: {}", e.getMessage());
+            log.error("Unable to cache json object, error: [{}]", e.getMessage());
 
             throw new TransferApplicationException("IDEMPOTENCY_ERROR", "Unable to process data");
         }
