@@ -1,6 +1,6 @@
 package co.za.payments.transfers.repository.impl;
 
-import co.za.payments.transfers.exception.TransferApplicationException;
+import co.za.payments.transfers.exception.SystemInternalException;
 import co.za.payments.transfers.repository.IdempotencyRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +53,7 @@ public class RedisIdempotencyRepositoryImpl implements IdempotencyRepository {
         } catch (Exception e) {
             log.error("Unable to cache json object, error: [{}]", e.getMessage());
 
-            throw new TransferApplicationException("IDEMPOTENCY_ERROR", "Unable to process data");
+            throw new SystemInternalException("IDEMPOTENCY_ERROR", "Unable to process data");
         }
     }
 

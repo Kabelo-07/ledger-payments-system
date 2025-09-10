@@ -17,18 +17,18 @@ import java.util.stream.Collectors;
 
 import static co.za.payments.transfers.config.AppConstants.INVALID_REQUEST;
 import static co.za.payments.transfers.config.AppConstants.MISSING_HEADER;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ControllerAdvice
 @Slf4j
 public class TransferServiceExceptionHandler {
 
     @ExceptionHandler(TransferApplicationException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(TransferApplicationException exception) {
-        log.error("Error occurred locating resource", exception);
+    public ResponseEntity<ErrorResponse> handleApplicationException(TransferApplicationException exception) {
+        log.error("Application Error occurred ", exception);
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse(HttpStatus.NOT_FOUND.value(), exception.getCode(), exception.getMessage()));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(exception.getCode(), exception.getMessage()));
     }
 
     @ExceptionHandler(LedgerServiceException.class)
@@ -53,22 +53,22 @@ public class TransferServiceExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(new ErrorResponse(BAD_REQUEST.value(), INVALID_REQUEST, "Validation failed", errors));
+                .body(new ErrorResponse(INVALID_REQUEST, "Validation failed", errors));
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<Object> handleArgumentNotValid(MissingRequestHeaderException ex) {
         return ResponseEntity
                 .badRequest()
-                .body(new ErrorResponse(BAD_REQUEST.value(), MISSING_HEADER, ex.getMessage()));
+                .body(new ErrorResponse(MISSING_HEADER, ex.getMessage()));
     }
 
     @ExceptionHandler({OptimisticLockException.class, OptimisticLockingFailureException.class})
     public ResponseEntity<ErrorResponse> handleOptimisticException(Exception exception) {
         log.error("Optimistic lock error occurred ", exception);
         return ResponseEntity
-                .internalServerError()
-                .body(new ErrorResponse(HttpStatus.CONFLICT.value(), AppConstants.CONFLICT_CODE, "Conflict error processing transfer"));
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(AppConstants.CONFLICT_CODE, "Conflict error processing transfer"));
     }
 
     @ExceptionHandler(Exception.class)
@@ -77,7 +77,28 @@ public class TransferServiceExceptionHandler {
 
         return ResponseEntity
                 .internalServerError()
-                .body(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.name(), exception.getMessage()));
+                .body(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.name(), exception.getMessage()));
+    }
+
+    @ExceptionHandler(TransferNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleTransferNotException(TransferNotFoundException exception) {
+        log.error("Transfer error occurred ", exception);
+
+        return ResponseEntity.status(NOT_FOUND).body(new ErrorResponse(exception.getCode(), exception.getMessage()));
+    }
+
+    @ExceptionHandler(SystemInternalException.class)
+    public ResponseEntity<ErrorResponse> handleInternalException(SystemInternalException exception) {
+        log.error("Internal error occurred", exception);
+
+        return ResponseEntity.internalServerError().body(new ErrorResponse(exception.getCode(), exception.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidBatchSizeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidBatchSize(InvalidBatchSizeException exception) {
+        log.error("Error occurred locating resource", exception);
+
+        return ResponseEntity.badRequest().body(new ErrorResponse(exception.getCode(), exception.getMessage()));
     }
 
 }

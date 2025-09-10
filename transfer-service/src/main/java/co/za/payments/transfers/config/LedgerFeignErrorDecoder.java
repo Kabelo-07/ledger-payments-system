@@ -2,7 +2,7 @@ package co.za.payments.transfers.config;
 
 import co.za.payments.transfers.exception.ErrorResponse;
 import co.za.payments.transfers.exception.LedgerServiceException;
-import co.za.payments.transfers.exception.TransferApplicationException;
+import co.za.payments.transfers.exception.SystemInternalException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.CharStreams;
@@ -36,7 +36,7 @@ public class LedgerFeignErrorDecoder implements ErrorDecoder {
         try (Reader reader = response.body().asReader(StandardCharsets.UTF_8)) {
             return CharStreams.toString(reader);
         } catch (IOException ex) {
-            throw new TransferApplicationException("INTERNAL_ERROR", "Unable to process data");
+            throw new SystemInternalException("Unable to process data, error: [%s]".formatted(ex.getMessage()));
         }
     }
 
@@ -44,8 +44,8 @@ public class LedgerFeignErrorDecoder implements ErrorDecoder {
         try {
             var resp = new ObjectMapper().readValue(body, ErrorResponse.class);
             return new LedgerServiceException(resp.status(), resp.code(), resp.message());
-        } catch (JsonProcessingException e) {
-            throw new TransferApplicationException("SERVICE_ERROR", "Unable to process service response");
+        } catch (JsonProcessingException ex) {
+            throw new SystemInternalException("Unable to process service response, error: [%s]".formatted(ex.getMessage()));
         }
     }
 }

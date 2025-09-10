@@ -4,7 +4,7 @@ import co.za.payments.transfers.config.TransferConfigProperties;
 import co.za.payments.transfers.domain.Transfer;
 import co.za.payments.transfers.domain.TransferOutboxEvent;
 import co.za.payments.transfers.dto.*;
-import co.za.payments.transfers.exception.TransferApplicationException;
+import co.za.payments.transfers.exception.SystemInternalException;
 import co.za.payments.transfers.exception.TransferNotFoundException;
 import co.za.payments.transfers.repository.IdempotencyRepository;
 import co.za.payments.transfers.repository.OutboxRepository;
@@ -158,7 +158,7 @@ public class TransferServiceImpl implements TransferService {
         try {
             return objectMapper.writeValueAsString(request);
         } catch (JsonProcessingException e) {
-            throw new TransferApplicationException("INTERNAL_ERROR", "Unable to process provided input, error :%s".formatted(e.getMessage()));
+            throw new SystemInternalException("Unable to process provided input, error: [%s]".formatted(e.getMessage()));
         }
     }
 }

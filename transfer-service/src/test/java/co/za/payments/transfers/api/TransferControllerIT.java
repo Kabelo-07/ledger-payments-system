@@ -2,6 +2,7 @@ package co.za.payments.transfers.api;
 
 import co.za.payments.transfers.domain.Transfer;
 import co.za.payments.transfers.dto.AccountTransferRequest;
+import co.za.payments.transfers.dto.BatchTransferRequest;
 import co.za.payments.transfers.dto.TransferResponse;
 import co.za.payments.transfers.repository.IdempotencyRepository;
 import co.za.payments.transfers.repository.OutboxRepository;
@@ -16,19 +17,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import static co.za.payments.transfers.config.AppConstants.MISSING_HEADER;
 import static co.za.payments.transfers.config.AppConstants.TRANSFER_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,6 +39,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Testcontainers
+@TestPropertySource(properties = {
+        "transfer.batch.max-transfer-size: 3"
+})
 class TransferControllerIT {
 
     @Container
@@ -223,4 +228,56 @@ class TransferControllerIT {
                 .andExpect(jsonPath("$.code", equalTo(TRANSFER_NOT_FOUND)))
                 .andExpect(jsonPath("$.message", startsWith("Transfer with ID")));
     }
+
+    @Test
+    void shouldReturnHttp201ResponseWhenValidBatchTransferIsInitiated() throws Exception {
+        // given
+        var transferRequest = new BatchTransferRequest(List.of(
+                new AccountTransferRequest(fromAccountId, toAccountId, BigDecimal.valueOf(200)),
+                new AccountTransferRequest(fromAccountId, toAccountId, BigDecimal.valueOf(250)))
+        );
+
+        // when
+        var resultActions = mockMvc.perform(post("/transfers/batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(transferRequest)));
+
+        // then
+        resultActions.andExpect(status().isCreated())
+                .andExpect(jsonPath("$.transfers", hasSize(2)))
+                .andExpect(jsonPath("$.transfers[0].transfer_id").isNotEmpty())
+                .andExpect(jsonPath("$.transfers[0].status", equalTo("PROCESSING")))
+                .andExpect(jsonPath("$.transfers[0].created_at").isNotEmpty())
+                .andExpect(jsonPath("$.transfers[0].from_account_id").isNotEmpty())
+                .andExpect(jsonPath("$.transfers[0].to_account_id").isNotEmpty())
+                .andExpect(jsonPath("$.transfers[0].amount", greaterThanOrEqualTo(200)))
+                .andExpect(jsonPath("$.transfers[1].transfer_id").isNotEmpty())
+                .andExpect(jsonPath("$.transfers[1].status", equalTo("PROCESSING")))
+                .andExpect(jsonPath("$.transfers[1].created_at").isNotEmpty())
+                .andExpect(jsonPath("$.transfers[1].from_account_id").isNotEmpty())
+                .andExpect(jsonPath("$.transfers[1].to_account_id").isNotEmpty())
+                .andExpect(jsonPath("$.transfers[1].amount", greaterThanOrEqualTo(250)));
+    }
+
+    @Test
+    void shouldReturnHttp400ResponseWhenBatchTransferSizeGreaterThanMaxAllowed() throws Exception {
+        // given batch of 4, with max allowed set to 3 (using @TestPropertySource)
+        var transferRequest = new BatchTransferRequest(List.of(
+                new AccountTransferRequest(fromAccountId, toAccountId, amount),
+                new AccountTransferRequest(fromAccountId, toAccountId, amount),
+                new AccountTransferRequest(fromAccountId, toAccountId, amount),
+                new AccountTransferRequest(fromAccountId, toAccountId, amount))
+        );
+
+        // when
+        var resultActions = mockMvc.perform(post("/transfers/batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(transferRequest)));
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code", equalTo("INVALID_BATCH_SIZE")))
+                .andExpect(jsonPath("$.message", containsString("Batch size")));
+    }
+
 }
