@@ -1,4 +1,4 @@
-package co.za.payments.transfers.config;
+package co.za.payments.transfers.client;
 
 import co.za.payments.transfers.exception.ErrorResponse;
 import co.za.payments.transfers.exception.LedgerServiceException;

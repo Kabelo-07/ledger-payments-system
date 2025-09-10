@@ -9,8 +9,12 @@ import co.za.payments.ledger.exception.AccountNotFoundException;
 import co.za.payments.ledger.repository.AccountRepository;
 import co.za.payments.ledger.repository.LedgerEntryRepository;
 import co.za.payments.ledger.service.LedgerService;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +30,10 @@ public class LedgerEntryServiceImpl implements LedgerService {
     private final LedgerEntryRepository ledgerRepository;
     private final AccountRepository accountRepository;
 
+    @Retryable(
+            retryFor = {OptimisticLockException.class, OptimisticLockingFailureException.class},
+            backoff = @Backoff(delay = 50, multiplier = 2, random = true),
+            maxAttempts = 4)
     @Override
     @Transactional
     public LedgerTransferResponse createEntry(TransferRequest request) {

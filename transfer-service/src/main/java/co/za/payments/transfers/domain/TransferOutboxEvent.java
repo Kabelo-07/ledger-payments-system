@@ -41,6 +41,9 @@ public class TransferOutboxEvent extends AbstractEntity {
 
     public void markAsProcessed() {
         this.status = OutboxStatus.PROCESSED;
+
+        //clear message
+        this.message = null;
     }
 
     public void markAsFailed(String message) {

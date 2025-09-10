@@ -12,9 +12,9 @@ spring:
       minimum-idle: 5
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
+    show-sql: ${SHOW_SQL:false}
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: ${HIBERNATE_DDL_AUTO:update}
       format_sql: true
   jackson:
     default-property-inclusion: NON_EMPTY

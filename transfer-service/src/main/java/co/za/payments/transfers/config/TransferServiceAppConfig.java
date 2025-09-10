@@ -1,5 +1,6 @@
 package co.za.payments.transfers.config;
 
+import co.za.payments.transfers.client.LedgerFeignErrorDecoder;
 import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
@@ -14,7 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -29,7 +29,6 @@ import static co.za.payments.transfers.config.AppConstants.REQUEST_ID_HEADER_NAM
 @EnableAsync
 @RequiredArgsConstructor
 @Slf4j
-@EnableRetry
 public class TransferServiceAppConfig {
 
     private final TransferConfigProperties properties;
@@ -43,6 +42,7 @@ public class TransferServiceAppConfig {
         executor.setMaxPoolSize(properties.threadPoolSize());
         executor.setQueueCapacity(properties.queueCapacity());
         executor.setThreadNamePrefix("transfer-");
+        executor.setTaskDecorator(new MdcTaskDecorator());
         executor.initialize();
         return executor;
     }

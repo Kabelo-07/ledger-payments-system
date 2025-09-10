@@ -21,11 +21,17 @@ public class TransferOutboxEventPublisher {
 
     @Scheduled(fixedDelay = 30000)
     public void publishPendingEvents() {
+        log.info("Job [START] - Retrieving scheduled transfers");
         var outboxEvents = outboxRepository.findTop50ByStatusAndNextAttemptAtBeforeOrderByCreatedAtAsc(
                 OutboxStatus.PENDING,
                 Instant.now()
         );
+
+        log.info("Job [START] - Found [{}] events to be processed", outboxEvents.size());
+
         outboxEvents.forEach(this::processEvent);
+
+        log.info("Job [FINISH] - Sent [{}] events to be processed", outboxEvents.size());
     }
 
     @Async("transferExecutor")

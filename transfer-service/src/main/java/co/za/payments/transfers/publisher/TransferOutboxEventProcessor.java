@@ -29,6 +29,7 @@ public class TransferOutboxEventProcessor {
     @Transactional
     public void processEventTransactional(TransferOutboxEvent event) {
         event.incrementRetryCount();
+
         var transfer = transferRepository.findById(event.getTransferId()).orElseThrow();
 
         log.info("Processing transfer {}, attempt {}", transfer.getId(), event.getNumberOfAttempts());

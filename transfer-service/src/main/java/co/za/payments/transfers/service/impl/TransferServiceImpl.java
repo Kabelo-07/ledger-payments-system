@@ -12,12 +12,8 @@ import co.za.payments.transfers.repository.TransferRepository;
 import co.za.payments.transfers.service.TransferService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,10 +47,6 @@ public class TransferServiceImpl implements TransferService {
         this.objectMapper = objectMapper;
     }
 
-    @Retryable(
-            retryFor = {OptimisticLockException.class, OptimisticLockingFailureException.class},
-            backoff = @Backoff(delay = 50, multiplier = 2, random = true),
-            maxAttempts = 4)
     @Override
     @Transactional
     public TransferResponse processTransfer(AccountTransferRequest request, String idempotencyKey) {

@@ -1,4 +1,4 @@
-package co.za.payments.transfers.config;
+package co.za.payments.transfers.client;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
