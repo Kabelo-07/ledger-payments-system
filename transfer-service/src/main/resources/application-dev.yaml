@@ -55,18 +55,20 @@ transfer:
     ttl: ${IDEMPOTENCY_TTL:2m} # ISO format
   outbox:
     max-retries: 5
-    base-backoff-seconds: ${BASE_BACKOFF_SECONDS:30}
+    base-backoff-seconds: ${BASE_BACKOFF_SECONDS:5}
 
 resilience4j.circuitbreaker:
     instances:
       ledgerApiCircuitBreaker:
         slidingWindowType: COUNT_BASED
-        slidingWindowSize: 10
-        failureRateThreshold: 50
-        waitDurationInOpenState: 30s
-        permittedNumberOfCallsInHalfOpenState: 3
-        minimumNumberOfCalls: 4
+        slidingWindowSize: ${CB_SLIDING_WINDOW_SIZE:3}
+        failureRateThreshold: ${CB_FAILURE_THRESHOLD:30}
+        waitDurationInOpenState: ${CB_WAIT_DURATION:15s}
+        permittedNumberOfCallsInHalfOpenState: ${CB_CALLS_HALF_OPEN_STATE:2}
+        minimumNumberOfCalls: ${CB_MIN_NO_OF_CALLS:1}
         registerHealthIndicator: true
+        ignoreExceptions:
+          - co.za.payments.transfers.exception.TransferApplicationException
 
 logging:
   pattern:

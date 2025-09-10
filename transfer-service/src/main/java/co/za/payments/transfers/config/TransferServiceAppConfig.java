@@ -2,7 +2,11 @@ package co.za.payments.transfers.config;
 
 import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.core.registry.EntryAddedEvent;
+import io.github.resilience4j.core.registry.EntryRemovedEvent;
+import io.github.resilience4j.core.registry.EntryReplacedEvent;
+import io.github.resilience4j.core.registry.RegistryEventConsumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -55,29 +59,27 @@ public class TransferServiceAppConfig {
     }
 
     @Bean
-    public CircuitBreakerRegistry circuitBreakerRegistry() {
-        var registry = CircuitBreakerRegistry.ofDefaults();
-        var cb = registry.circuitBreaker("LedgerApiCircuitBreaker");
+    public RegistryEventConsumer<CircuitBreaker> circuitBreakerLogger() {
+        return new RegistryEventConsumer<>() {
+            @Override
+            public void onEntryAddedEvent(EntryAddedEvent<CircuitBreaker> event) {
+                CircuitBreaker cb = event.getAddedEntry();
+                log.info("CircuitBreaker '{}' created", cb.getName());
 
-        cb.getEventPublisher()
-                .onStateTransition(event -> {
-                    var transition = event.getStateTransition();
-                    var failureRate = cb.getMetrics().getFailureRate();
-                    var bufferedCalls = cb.getMetrics().getNumberOfBufferedCalls();
+                cb.getEventPublisher()
+                        .onStateTransition(e -> log.info("CircuitBreaker: {}, transition {} -> {}",
+                                cb.getName(),
+                                e.getStateTransition().getFromState(),
+                                e.getStateTransition().getToState()))
+                        .onCallNotPermitted(e -> log.warn("CircuitBreaker: {}, call blocked", cb.getName()))
+                        .onError(e -> log.error("CircuitBreaker: {}, error {}", cb.getName(), e.getThrowable().toString()))
+                        .onSuccess(e -> log.info("CircuitBreaker: {} success", cb.getName()));
+            }
 
-                    log.info("circuitBreakerStateChange: {{ from: {}, to: {}, failureRate: {}, buffered: {} }}",
-                            transition.getFromState(),
-                            transition.getToState(),
-                            failureRate,
-                            bufferedCalls);
-                }).onCallNotPermitted(event -> {
-                    var failureRate = cb.getMetrics().getFailureRate();
-                    var bufferedCalls = cb.getMetrics().getNumberOfBufferedCalls();
-
-                    log.warn("circuitBreakerCallBlocked: {{ failureRate: {}, buffered: {}  }}",
-                            failureRate, bufferedCalls);
-                });
-
-        return registry;
+            @Override
+            public void onEntryRemovedEvent(EntryRemovedEvent<CircuitBreaker> event) {}
+            @Override
+            public void onEntryReplacedEvent(EntryReplacedEvent<CircuitBreaker> event) {}
+        };
     }
 }

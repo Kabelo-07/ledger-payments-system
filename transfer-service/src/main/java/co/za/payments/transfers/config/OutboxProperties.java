@@ -15,7 +15,7 @@ public class OutboxProperties {
     @Min(value = 5, message = "max-retries must have a minimum value of 5")
     private int maxRetries;
 
-    @Min(value = 25, message = "base-backoff-seconds must have a minimum value of 25")
+    @Min(value = 5, message = "base-backoff-seconds must have a minimum value of 5")
     private int baseBackoffSeconds;
 
 }

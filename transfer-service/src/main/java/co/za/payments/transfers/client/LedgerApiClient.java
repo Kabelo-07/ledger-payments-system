@@ -2,8 +2,8 @@ package co.za.payments.transfers.client;
 
 import co.za.payments.transfers.client.contract.LedgerTransferResponse;
 import co.za.payments.transfers.dto.LedgerTransferRequest;
+import co.za.payments.transfers.exception.LedgerServiceException;
 import co.za.payments.transfers.exception.ServiceUnavailableException;
-import co.za.payments.transfers.exception.TransferApplicationException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -28,10 +28,11 @@ public interface LedgerApiClient {
                 request.transferId(),
                 throwable.getMessage());
 
-        if (throwable instanceof TransferApplicationException e) {
+        if (throwable instanceof LedgerServiceException e) {
             throw  e;
         }
 
         throw new ServiceUnavailableException("Ledger Service Unavailable", throwable);
     }
+
 }

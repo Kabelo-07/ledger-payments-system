@@ -5,7 +5,6 @@ import co.za.payments.transfers.config.OutboxProperties;
 import co.za.payments.transfers.domain.Transfer;
 import co.za.payments.transfers.domain.TransferOutboxEvent;
 import co.za.payments.transfers.dto.LedgerTransferRequest;
-import co.za.payments.transfers.exception.ServiceUnavailableException;
 import co.za.payments.transfers.repository.OutboxRepository;
 import co.za.payments.transfers.repository.TransferRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,8 +26,9 @@ public class TransferOutboxEventProcessor {
     private final ObjectMapper objectMapper;
     private final OutboxProperties properties;
 
-    @Transactional(noRollbackFor = {ServiceUnavailableException.class})
+    @Transactional
     public void processEventTransactional(TransferOutboxEvent event) {
+        event.incrementRetryCount();
         var transfer = transferRepository.findById(event.getTransferId()).orElseThrow();
 
         log.info("Processing transfer {}, attempt {}", transfer.getId(), event.getNumberOfAttempts());
@@ -44,8 +44,6 @@ public class TransferOutboxEventProcessor {
     }
 
     private void handleRetry(TransferOutboxEvent event, Transfer transfer, Throwable throwable) {
-        event.incrementRetryCount();
-
         if (!event.canRetry(properties.getMaxRetries())) {
             this.markAsFailed(event, transfer);
             return;
