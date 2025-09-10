@@ -96,7 +96,7 @@ public class TransferServiceExceptionHandler {
 
     @ExceptionHandler(InvalidBatchSizeException.class)
     public ResponseEntity<ErrorResponse> handleInvalidBatchSize(InvalidBatchSizeException exception) {
-        log.error("Error occurred locating resource", exception);
+        log.error("Error processing batch transfers", exception);
 
         return ResponseEntity.badRequest().body(new ErrorResponse(exception.getCode(), exception.getMessage()));
     }
