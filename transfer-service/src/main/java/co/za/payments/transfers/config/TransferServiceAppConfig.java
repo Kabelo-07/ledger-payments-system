@@ -11,10 +11,7 @@ import io.github.resilience4j.core.registry.RegistryEventConsumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -27,6 +24,7 @@ import static co.za.payments.transfers.config.AppConstants.REQUEST_ID_HEADER_NAM
 @Configuration
 @EnableScheduling
 @EnableAsync
+@EnableAspectJAutoProxy
 @RequiredArgsConstructor
 @Slf4j
 public class TransferServiceAppConfig {
